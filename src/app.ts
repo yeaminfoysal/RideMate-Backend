@@ -3,13 +3,25 @@ import express, { Request, Response } from "express"
 import cors from "cors"
 import { UserRoutes } from "./app/modules/user/user.route";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
+import passport from "passport";
+import "./app/config/passport";
+import expressSession from "express-session"
+import { authRoutes } from "./app/modules/auth/auth.route";
 
 const app = express();
+app.use(expressSession({
+    secret: process.env.EXPRESS_SESSION_SECRET as string,
+    resave: false,
+    saveUninitialized: false
+}))
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors());
 
 app.use("/api/v1/user", UserRoutes)
+app.use("/api/v1/auth", authRoutes)
 
 app.get("/", (req, res) => {
     res.status(200).json({

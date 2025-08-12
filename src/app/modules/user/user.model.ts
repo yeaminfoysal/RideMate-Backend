@@ -1,21 +1,37 @@
 import { model, Schema } from "mongoose";
-import { Iuser } from "./user.interface";
+import { IAuthProvider, Iuser } from "./user.interface";
 
-const userSchema = new Schema<Iuser>({
-    name: { type: String, required: true},
+const authProviderSchema = new Schema<IAuthProvider>(
+  {
+    provider: { type: String, required: true },
+    providerId: { type: String, required: true },
+  },
+  { _id: false }
+);
+
+const userSchema = new Schema<Iuser>(
+  {
+    name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
     role: {
-        type: String,
-        enum: ['ADMIN', 'USER', 'DRIVER'],
-        default: "USER"
+      type: String,
+      enum: ["ADMIN", "USER", "DRIVER"],
+      default: "USER",
     },
     activeRide: {
-        type: Schema.Types.ObjectId,
-        ref: "Ride",
-        required: true,
-        default: 'none'
-    }
-})
+      type: Schema.Types.ObjectId,
+      ref: "Ride",
+      default: null,
+    },
+    auths: {
+      type: [authProviderSchema],
+      default: [],
+    },
+  },
+  {
+    versionKey: false,
+  }
+);
 
 export const User = model<Iuser>("User", userSchema);

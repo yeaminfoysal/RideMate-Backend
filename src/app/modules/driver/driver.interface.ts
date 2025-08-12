@@ -5,5 +5,5 @@ export interface IDriver {
     onlineStatus: "online" | "offline",
     approvalStatus: 'suspended' | 'approved' | 'none',
     vehicle: string,
-    activeRide: Types.ObjectId
+    activeRide: Types.ObjectId | null
 }

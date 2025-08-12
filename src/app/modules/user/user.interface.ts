@@ -11,5 +11,6 @@ export interface Iuser{
     email: string,
     password: string,
     role: 'USER' | 'ADMIN' | 'DRIVER',
-    activeRide: Types.ObjectId
+    activeRide: Types.ObjectId | null;
+    auths: IAuthProvider[];
 }

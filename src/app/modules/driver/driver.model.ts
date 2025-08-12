@@ -12,7 +12,7 @@ const driverSchema = new Schema<IDriver>({
         type: Schema.Types.ObjectId,
         ref: "Ride",
         required: true,
-        default: 'none'
+        default: null
     }
 })
 

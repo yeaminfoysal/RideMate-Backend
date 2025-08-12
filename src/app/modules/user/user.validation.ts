@@ -22,7 +22,11 @@ export const createUserZodSchema = z.object({
         .regex(/^(?=.*\d)/, {
             message: "Password must contain at least 1 number.",
         }),
-    activeRide: z.string({ message: "Active ride must be string" }).optional(),
+    activeRide: z
+        .string({ message: "Active ride must be string" })
+        .regex(/^[0-9a-fA-F]{24}$/, { message: "Invalid ride ID format." })
+        .optional()
+        .nullable(),
     role: z
         .enum(["ADMIN", "USER", "DRIVER"]).optional(),
 })
@@ -45,5 +49,10 @@ export const updateUserZodSchema = z.object({
             message: "Password must contain at least 1 number.",
         }).optional(),
     role: z
-        .enum(["ADMIN", "USER", "DRIVER"]).optional()
+        .enum(["ADMIN", "USER", "DRIVER"]).optional(),
+    activeRide: z
+        .string({ message: "Active ride must be string" })
+        .regex(/^[0-9a-fA-F]{24}$/, { message: "Invalid ride ID format." })
+        .optional()
+        .nullable(),
 })

@@ -6,7 +6,7 @@ export interface IAuthProvider{
 }
 
 export interface Iuser{
-    _id?:string,
+    _id?:Types.ObjectId,
     name: string,
     email: string,
     password: string,

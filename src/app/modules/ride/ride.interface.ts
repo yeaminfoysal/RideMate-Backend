@@ -7,7 +7,7 @@ export interface ILocation {
 }
 
 export interface IRide {
-    _id?: string,
+    _id?: Types.ObjectId,
     rider: Types.ObjectId,
     driver: Types.ObjectId,
     pickup: ILocation;

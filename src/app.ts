@@ -8,6 +8,7 @@ import "./app/config/passport";
 import expressSession from "express-session"
 import { authRoutes } from "./app/modules/auth/auth.route";
 import { DriverRoute } from "./app/modules/driver/driver.route";
+import { RideRoute } from "./app/modules/ride/ride.route";
 
 const app = express();
 app.use(expressSession({
@@ -24,6 +25,7 @@ app.use(cors());
 app.use("/api/v1/user", UserRoutes)
 app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/driver", DriverRoute)
+app.use("/api/v1/ride", RideRoute)
 
 app.get("/", (req, res) => {
     res.status(200).json({

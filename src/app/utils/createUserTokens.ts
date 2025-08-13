@@ -17,10 +17,6 @@ export const createUserToken = (user: Partial<Iuser>, driverId?: string) => {
 
     const refreshToken = generateToken(jwtPayload, process.env.JWT_REFRESH_SECRET as string, "30d");
 
-    const verifiedToken = verifyToken(accessToken, process.env.JWT_ACCESS_SECRET as string) as JwtPayload;
-
-    console.log(verifiedToken);
-
     return { accessToken, refreshToken }
 }
 

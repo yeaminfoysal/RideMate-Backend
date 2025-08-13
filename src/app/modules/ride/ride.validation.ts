@@ -11,7 +11,7 @@ const locationValidation = z.object({
 });
 
 export const createRideZodSchema = z.object({
-  rider: objectIdValidation,
+  rider: objectIdValidation.optional(),
   driver: objectIdValidation.optional(), // driver can be empty until accepted
   pickup: locationValidation,
   destination: locationValidation,

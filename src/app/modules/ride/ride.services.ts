@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request } from "express";
 import { User } from "../user/user.model";
 import AppError from "../../errorHelpers/AppError";
@@ -153,11 +154,45 @@ const acceptRide = async (rideId: string, driverId: string) => {
     return { ride, updatedDriver };
 };
 
+type RideStatus = 'canceled' | 'requested' | 'accepted' | 'picked_up' | 'in_transit' | 'completed';
+
+const updateRideStatus = async (rideId: string, driverId: string, status: RideStatus) => {
+    const driver = await Driver.findById(driverId);
+
+    if (!driver) {
+        throw new AppError(404, "Driver not found.");
+    }
+
+    if (driver.activeRide?.toString() !== rideId) {
+        throw new AppError(403, "You are not permitted to update this ride.");
+    }
+
+    const updateData: Record<string, any> = { status };
+
+    if (status === "completed") {
+        updateData.completedAt = new Date();
+        await Driver.findByIdAndUpdate(driverId, { activeRide: null });
+    }
+    if (status === "picked_up") {
+        updateData.pickedUpAt = new Date();
+    }
+
+    const ride = await Ride.findByIdAndUpdate(rideId, updateData, { new: true });
+
+    if (!ride) {
+        throw new AppError(404, "Ride not found.");
+    }
+
+    return ride;
+};
+
+
 
 export const RideServices = {
     requestRide,
     cancelRide,
     getAvailableRides,
     rejectRide,
-    acceptRide
+    acceptRide,
+    updateRideStatus
 }

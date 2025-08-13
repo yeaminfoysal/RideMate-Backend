@@ -114,4 +114,24 @@ const getAllRides = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-export const RideController = { requestRide, cancelRide, getMyRides, getAvailableRides, rejectRide, acceptRide, getAllRides }
+const updateRideStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const driverId = (req.user as { driverId: string }).driverId;
+
+        const rides = await RideServices.updateRideStatus(
+            req.params.id,
+            driverId,
+            req.body.status
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Ride status updated successfully.",
+            data: rides
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const RideController = { requestRide, cancelRide, getMyRides, getAvailableRides, rejectRide, acceptRide, getAllRides, updateRideStatus }

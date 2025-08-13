@@ -32,13 +32,14 @@ const rideSchema = new Schema<IRide>({
     acceptedAt: { type: Date },
     pickedUpAt: { type: Date },
     completedAt: { type: Date },
-    rejectedBy: [
-        {
+    rejectedBy: {
+        type: [{
             driverId: { type: Schema.Types.ObjectId, ref: "Driver" },
             rejectedAt: { type: Date, default: Date.now },
             reason: { type: String, default: null }
-        }
-    ]
+        }],
+        _id: false
+    }
 }, {
     versionKey: false
 });

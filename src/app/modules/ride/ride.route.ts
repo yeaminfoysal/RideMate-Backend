@@ -24,3 +24,15 @@ RideRoute.get(
     checkAuth("ADMIN", "USER", "DRIVER"),
     RideController.getMyRides
 )
+
+RideRoute.get(
+    "/available",
+    checkAuth("DRIVER"),
+    RideController.getAvailableRides
+)
+
+RideRoute.patch(
+    "/reject/:id",
+    checkAuth("DRIVER"),
+    RideController.rejectRide
+)

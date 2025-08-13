@@ -29,6 +29,7 @@ const cancelRide = async (req: Request, res: Response, next: NextFunction) => {
         next(error)
     }
 }
+
 const getMyRides = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req.user as { userId: string }).userId;
@@ -44,4 +45,39 @@ const getMyRides = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-export const RideController = { requestRide, cancelRide, getMyRides }
+const getAvailableRides = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const driverId = (req.user as { driverId: string }).driverId;
+        const rides = await RideServices.getAvailableRides(driverId);
+
+        res.status(200).json({
+            success: true,
+            message: "Available rides retrieved successfully.",
+            data: rides
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const rejectRide = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const driverId = (req.user as { driverId: string }).driverId;
+        const reason = req.body?.reason
+
+        const ride = await RideServices.rejectRide(
+            req.params.id,
+            driverId,
+            reason
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Ride rejected successfully.",
+            data: ride
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+export const RideController = { requestRide, cancelRide, getMyRides, getAvailableRides, rejectRide }

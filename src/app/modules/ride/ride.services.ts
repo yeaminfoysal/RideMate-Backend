@@ -2,6 +2,7 @@ import { Request } from "express";
 import { User } from "../user/user.model";
 import AppError from "../../errorHelpers/AppError";
 import { Ride } from "./ride.model";
+import { Driver } from "../driver/driver.model";
 
 const requestRide = async (req: Request) => {
 
@@ -45,7 +46,7 @@ const cancelRide = async (req: Request) => {
     if (ride?.status !== "requested") {
         throw new AppError(400, "Ride is already on processing")
     }
-    
+
     const updatedRide = await Ride.findByIdAndUpdate(
         rideId,
         { status: "canceled" },
@@ -59,4 +60,55 @@ const cancelRide = async (req: Request) => {
     return { updatedRide, rider }
 }
 
-export const RideServices = { requestRide, cancelRide }
+const getAvailableRides = async (driverId: string) => {
+
+    const driver = await Driver.findById(driverId);
+
+    if (driver?.activeRide) {
+        throw new AppError(400, "Already in an active ride.")
+    }
+    if (driver?.approvalStatus !== "approved") {
+        throw new AppError(400, "Driveer is not permited for ride at this moment.")
+    }
+
+    const availableRides = await Ride.find(
+        {
+            status: "requested",
+            "rejectedBy.driverId": { $ne: driverId }
+        }
+    );
+
+    return availableRides
+}
+
+const rejectRide = async (rideId: string, driverId: string, reason?: string) => {
+    const ride = await Ride.findById(rideId);
+
+    if (ride?.status !== "requested") {
+        throw new AppError(400, "Ride's status has been changed.")
+    }
+
+    const alreadyRejected = ride.rejectedBy.some(
+        driver => driver.driverId.toString() == driverId.toString()
+    )
+
+    if (alreadyRejected) {
+        throw new AppError(400, "You have already rejected this ride.")
+    }
+
+    const updatedRide = await Ride.findByIdAndUpdate(
+        rideId,
+        {
+            $push: {
+                rejectedBy: {
+                    driverId,
+                    reason: reason || null
+                }
+            }
+        },
+        { new: true }
+    )
+    return updatedRide;
+}
+
+export const RideServices = { requestRide, cancelRide, getAvailableRides, rejectRide }

@@ -29,6 +29,7 @@ export const createUserZodSchema = z.object({
         .nullable(),
     role: z
         .enum(["ADMIN", "USER", "DRIVER"]).optional(),
+    isBlocked: z.boolean().optional()
 })
 
 export const updateUserZodSchema = z.object({
@@ -55,4 +56,5 @@ export const updateUserZodSchema = z.object({
         .regex(/^[0-9a-fA-F]{24}$/, { message: "Invalid ride ID format." })
         .optional()
         .nullable(),
+    isBlocked: z.boolean().optional()
 })

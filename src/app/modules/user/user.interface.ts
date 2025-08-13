@@ -13,4 +13,5 @@ export interface Iuser{
     role: 'USER' | 'ADMIN' | 'DRIVER',
     activeRide: Types.ObjectId | null;
     auths: IAuthProvider[];
+    isBlocked: boolean
 }

@@ -36,3 +36,15 @@ RideRoute.patch(
     checkAuth("DRIVER"),
     RideController.rejectRide
 )
+
+RideRoute.patch(
+    "/accept/:id",
+    checkAuth("DRIVER"),
+    RideController.acceptRide
+)
+
+RideRoute.get(
+    "/all",
+    checkAuth("ADMIN"),
+    RideController.getAllRides
+)

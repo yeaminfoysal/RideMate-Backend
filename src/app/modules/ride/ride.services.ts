@@ -111,4 +111,53 @@ const rejectRide = async (rideId: string, driverId: string, reason?: string) => 
     return updatedRide;
 }
 
-export const RideServices = { requestRide, cancelRide, getAvailableRides, rejectRide }
+const acceptRide = async (rideId: string, driverId: string) => {
+    const driver = await Driver.findById(driverId);
+
+    if (!driver) {
+        throw new AppError(404, "Driver not found.");
+    }
+
+    if (driver.activeRide) {
+        throw new AppError(400, "Already in an active ride.");
+    }
+
+    if (driver.approvalStatus !== "approved") {
+        throw new AppError(400, "Driver is not permitted for ride at this moment.");
+    }
+
+    const ride = await Ride.findOneAndUpdate(
+        {
+            _id: rideId,
+            status: "requested",
+            "rejectedBy.driverId": { $ne: driverId }
+        },
+        {
+            driver: driverId,
+            status: "accepted",
+            acceptedAt: Date.now()
+        },
+        { new: true }
+    );
+
+    if (!ride) {
+        throw new AppError(400, "Ride not found, already accepted, or you rejected it before.");
+    }
+
+    const updatedDriver = await Driver.findByIdAndUpdate(
+        driverId,
+        { activeRide: rideId },
+        { new: true }
+    );
+
+    return { ride, updatedDriver };
+};
+
+
+export const RideServices = {
+    requestRide,
+    cancelRide,
+    getAvailableRides,
+    rejectRide,
+    acceptRide
+}

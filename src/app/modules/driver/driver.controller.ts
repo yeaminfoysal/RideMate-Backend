@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { DriverServices } from "./driver.services";
+import { Driver } from "./driver.model";
 
 const createDriver = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -33,7 +34,7 @@ const setApprovalStatus = async (req: Request, res: Response, next: NextFunction
         const driver = await DriverServices.setApprovalStatus(req)
         res.status(200).json({
             success: true,
-            message: "Updated active successfully",
+            message: "Updated apprival status successfully",
             data: driver
         })
     } catch (error) {
@@ -41,4 +42,23 @@ const setApprovalStatus = async (req: Request, res: Response, next: NextFunction
     }
 }
 
-export const DriverController = { createDriver, setAvailability, setApprovalStatus }
+const getAllDrivers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const drivers = await Driver.find()
+
+        res.status(200).json({
+            success: true,
+            message: "All drivers retrieved successfully",
+            data: drivers
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const DriverController = {
+    createDriver,
+    setAvailability,
+    setApprovalStatus,
+    getAllDrivers
+}

@@ -15,6 +15,7 @@ const createDriver = async (req: Request) => {
     });
     return driver
 }
+
 const setAvailability = async (req: Request) => {
 
     const user = (req.user as { userId?: string }).userId;
@@ -35,10 +36,14 @@ const setApprovalStatus = async (req: Request) => {
 
     const driver = await Driver.findByIdAndUpdate(
         id,
-        {approvalStatus},
+        { approvalStatus },
         { new: true }
     )
     return driver
 }
 
-export const DriverServices = { createDriver, setAvailability, setApprovalStatus }
+export const DriverServices = {
+    createDriver,
+    setAvailability,
+    setApprovalStatus
+}

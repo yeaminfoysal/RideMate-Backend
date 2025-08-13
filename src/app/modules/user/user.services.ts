@@ -61,4 +61,8 @@ const unblockUser = async (payload: string) => {
     return user
 }
 
-export const UserServices = { createUser, blockUser, unblockUser }
+export const UserServices = {
+    createUser,
+    blockUser,
+    unblockUser
+}

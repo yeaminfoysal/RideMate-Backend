@@ -24,3 +24,9 @@ DriverRoute.patch(
     checkAuth("ADMIN"),
     DriverController.setApprovalStatus
 )
+
+DriverRoute.get(
+    "/all",
+    checkAuth("ADMIN"),
+    DriverController.getAllDrivers
+)

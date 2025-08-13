@@ -48,6 +48,7 @@ const blockUser = async (req: Request, res: Response, next: NextFunction) => {
         next(error)
     }
 }
+
 const unblockUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = req.params.id;
@@ -62,6 +63,7 @@ const unblockUser = async (req: Request, res: Response, next: NextFunction) => {
         next(error)
     }
 }
+
 const getMyProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const email = (req.user as { email?: string })?.email;
@@ -78,4 +80,10 @@ const getMyProfile = async (req: Request, res: Response, next: NextFunction) => 
     }
 }
 
-export const UserControllers = { createUser, getAllUsers, blockUser, unblockUser, getMyProfile }
+export const UserControllers = { 
+    createUser, 
+    getAllUsers, 
+    blockUser, 
+    unblockUser, 
+    getMyProfile 
+}

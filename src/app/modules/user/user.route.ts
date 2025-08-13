@@ -8,15 +8,32 @@ import { checkAuth } from "../../middlewares/checkAuth";
 
 export const UserRoutes = Router()
 
-UserRoutes.post("/register", validateRequest(createUserZodSchema), UserControllers.createUser);
+UserRoutes.post(
+    "/register", 
+    validateRequest(createUserZodSchema), 
+    UserControllers.createUser
+);
 
-UserRoutes.get("/all-users", checkAuth("ADMIN"), UserControllers.getAllUsers);
+UserRoutes.get(
+    "/all-users", 
+    checkAuth("ADMIN"), 
+    UserControllers.getAllUsers
+);
 
-UserRoutes.get("/me", checkAuth("ADMIN", "USER", "DRIVER"), UserControllers.getMyProfile);
+UserRoutes.get(
+    "/me", 
+    checkAuth("ADMIN", "USER", "DRIVER"), 
+    UserControllers.getMyProfile
+);
 
-UserRoutes.patch("/block/:id", checkAuth("ADMIN"), UserControllers.blockUser);
+UserRoutes.patch(
+    "/block/:id", 
+    checkAuth("ADMIN"), 
+    UserControllers.blockUser
+);
 
-UserRoutes.patch("/unblock/:id", checkAuth("ADMIN"), UserControllers.unblockUser);
-
-
-// UserRoutes.patch("/:id", checkAuth("USER", "GUIDE", "ADMIN", "SUPER_ADMIN"), UserControllers.updateUser)
+UserRoutes.patch(
+    "/unblock/:id", 
+    checkAuth("ADMIN"), 
+    UserControllers.unblockUser
+);

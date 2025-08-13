@@ -154,7 +154,7 @@ const acceptRide = async (rideId: string, driverId: string) => {
     return { ride, updatedDriver };
 };
 
-type RideStatus = 'canceled' | 'requested' | 'accepted' | 'picked_up' | 'in_transit' | 'completed';
+type RideStatus = 'picked_up' | 'in_transit' | 'completed';
 
 const updateRideStatus = async (rideId: string, driverId: string, status: RideStatus) => {
     const driver = await Driver.findById(driverId);

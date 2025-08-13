@@ -134,4 +134,13 @@ const updateRideStatus = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
-export const RideController = { requestRide, cancelRide, getMyRides, getAvailableRides, rejectRide, acceptRide, getAllRides, updateRideStatus }
+export const RideController = {
+    requestRide,
+    cancelRide,
+    getMyRides,
+    getAvailableRides,
+    rejectRide,
+    acceptRide,
+    getAllRides,
+    updateRideStatus
+}

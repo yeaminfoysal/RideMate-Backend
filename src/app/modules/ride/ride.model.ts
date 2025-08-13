@@ -1,9 +1,18 @@
 import { model, Schema } from "mongoose";
 import { IRide } from "./ride.interface";
 
+const locationSchema = new Schema(
+    {
+        address: { type: String, required: true },
+        lat: { type: Number, required: true },
+        lng: { type: Number, required: true },
+    },
+    { _id: false }
+);
+
 const rideSchema = new Schema<IRide>({
-    destination: { type: String, required: true },
-    pickup: { type: String, required: true },
+    pickup: { type: locationSchema, required: true },
+    destination: { type: locationSchema, required: true },
     rider: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -11,14 +20,18 @@ const rideSchema = new Schema<IRide>({
     },
     driver: {
         type: Schema.Types.ObjectId,
-        ref: 'Driver',
-        required: true,
+        ref: 'Driver'
     },
     status: {
         type: String,
         enum: ['requested', 'accepted', 'picked_up', 'in_transit', 'completed'],
         default: "requested"
-    }
+    },
+    fare: { type: Number, default: 0 },
+    requestedAt: { type: Date, default: Date.now },
+    acceptedAt: { type: Date },
+    pickedUpAt: { type: Date },
+    completedAt: { type: Date },
 }, {
     versionKey: false
 });

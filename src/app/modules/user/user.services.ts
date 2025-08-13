@@ -1,3 +1,4 @@
+
 import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, Iuser } from "./user.interface";
 import { User } from "./user.model";
@@ -30,4 +31,34 @@ const createUser = async (payload: Iuser) => {
     return user;
 }
 
-export const UserServices = { createUser }
+const blockUser = async (payload: string) => {
+    const id = payload;
+
+    const user = await User.findByIdAndUpdate(
+        id,
+        { isBlocked: true },
+        { new: true }
+    );
+
+    if (!user) {
+        throw new AppError(400, "User does not exist")
+    }
+    return user
+}
+
+const unblockUser = async (payload: string) => {
+    const id = payload;
+
+    const user = await User.findByIdAndUpdate(
+        id,
+        { isBlocked: false },
+        { new: true }
+    );
+
+    if (!user) {
+        throw new AppError(400, "User does not exist")
+    }
+    return user
+}
+
+export const UserServices = { createUser, blockUser, unblockUser }

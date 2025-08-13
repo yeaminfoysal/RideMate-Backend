@@ -15,7 +15,7 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         const isUserExist = await User.findOne({ email: verifiedToken.email });
 
         if (!isUserExist) {
-            throw new AppError(400, "User is exist")
+            throw new AppError(400, "User is not exist")
         }
 
         if (isUserExist?.isBlocked) {

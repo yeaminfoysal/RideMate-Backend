@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { UserServices } from "./user.services";
+import { User } from "./user.model";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -15,4 +16,66 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-export const UserControllers = { createUser }
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const users = await User.find({});
+        const totalUsers = await User.countDocuments();
+
+        res.status(200).json({
+            seccess: true,
+            message: "All users retrived successfully",
+            data: users,
+            meta: {
+                total: totalUsers
+            }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const blockUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = req.params.id;
+        const user = await UserServices.blockUser(id)
+
+        res.status(200).json({
+            seccess: true,
+            message: "Block user successfully",
+            data: user
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+const unblockUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = req.params.id;
+        const user = await UserServices.unblockUser(id)
+
+        res.status(200).json({
+            seccess: true,
+            message: "Unblock user successfully",
+            data: user
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+const getMyProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const email = (req.user as { email?: string })?.email;
+        const user = await User.findOne({ email })
+        console.log(req.user);
+
+        res.status(200).json({
+            seccess: true,
+            message: "Profile retrived successfully",
+            data: user
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const UserControllers = { createUser, getAllUsers, blockUser, unblockUser, getMyProfile }

@@ -24,7 +24,7 @@ const rideSchema = new Schema<IRide>({
     },
     status: {
         type: String,
-        enum: ['requested', 'accepted', 'picked_up', 'in_transit', 'completed'],
+        enum: ['canceled', 'requested', 'accepted', 'picked_up', 'in_transit', 'completed'],
         default: "requested"
     },
     fare: { type: Number, default: 0 },
@@ -32,6 +32,13 @@ const rideSchema = new Schema<IRide>({
     acceptedAt: { type: Date },
     pickedUpAt: { type: Date },
     completedAt: { type: Date },
+    rejectedBy: [
+        {
+            driverId: { type: Schema.Types.ObjectId, ref: "Driver" },
+            rejectedAt: { type: Date, default: Date.now },
+            reason: { type: String, default: null }
+        }
+    ]
 }, {
     versionKey: false
 });

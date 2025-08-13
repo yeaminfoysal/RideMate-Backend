@@ -6,6 +6,21 @@ import { createDriverZodSchema } from "./driver.validation";
 
 export const DriverRoute = Router();
 
-DriverRoute.post("/", validateRequest(createDriverZodSchema), checkAuth("USER"), DriverController.createDriver)
+DriverRoute.post(
+    "/",
+    validateRequest(createDriverZodSchema),
+    checkAuth("USER"),
+    DriverController.createDriver
+)
 
-DriverRoute.patch("/availability", checkAuth("DRIVER"), DriverController.setAvailability)
+DriverRoute.patch(
+    "/availability",
+    checkAuth("DRIVER"),
+    DriverController.setAvailability
+)
+
+DriverRoute.patch(
+    "/approval/:id",
+    checkAuth("ADMIN"),
+    DriverController.setApprovalStatus
+)

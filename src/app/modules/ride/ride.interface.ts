@@ -12,10 +12,15 @@ export interface IRide {
     driver: Types.ObjectId,
     pickup: ILocation;
     destination: ILocation;
-    status: 'requested' | 'accepted' | 'picked_up' | 'in_transit' | 'completed',
+    status: 'canceled' | 'requested' | 'accepted' | 'picked_up' | 'in_transit' | 'completed',
     fare?: number;
     requestedAt?: Date;
     acceptedAt?: Date;
     pickedUpAt?: Date;
     completedAt?: Date;
+    rejectedBy: {
+        driverId: Types.ObjectId;
+        rejectedAt: Date;
+        reason?: string;
+    }[];
 }

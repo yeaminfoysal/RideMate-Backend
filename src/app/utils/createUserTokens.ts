@@ -4,17 +4,22 @@ import { User } from "../modules/user/user.model";
 import { generateToken, verifyToken } from "./jwt";
 import { Iuser } from "../modules/user/user.interface";
 
-export const createUserToken = (user: Partial<Iuser>) => {
+export const createUserToken = (user: Partial<Iuser>, driverId?: string) => {
     const jwtPayload = {
         userId: user._id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        driverId
     }
 
     // const accessToken = jwt.sign(jwtPayload, "secret", { expiresIn: "1d" })
     const accessToken = generateToken(jwtPayload, process.env.JWT_ACCESS_SECRET as string, "1d")
 
     const refreshToken = generateToken(jwtPayload, process.env.JWT_REFRESH_SECRET as string, "30d");
+
+    const verifiedToken = verifyToken(accessToken, process.env.JWT_ACCESS_SECRET as string) as JwtPayload;
+
+    console.log(verifiedToken);
 
     return { accessToken, refreshToken }
 }

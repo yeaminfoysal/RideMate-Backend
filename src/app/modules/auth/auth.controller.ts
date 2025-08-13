@@ -4,6 +4,7 @@ import passport from "passport";
 import AppError from "../../errorHelpers/AppError";
 import { createUserToken } from "../../utils/createUserTokens";
 import { setCookie } from "../../utils/setCookie";
+import { Driver } from "../driver/driver.model";
 
 
 const credentialsLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -17,7 +18,13 @@ const credentialsLogin = async (req: Request, res: Response, next: NextFunction)
                 return next(new AppError(401, info.message))
             }
 
-            const userTokens = createUserToken(user)
+            let driverId;
+            if (user.role == "DRIVER") {
+                const driver = await Driver.findOne({ user: user._id });
+                driverId = driver?._id.toString();
+            }
+
+            const userTokens = createUserToken(user, driverId)
 
             const userObj = user.toObject();
             delete userObj.password;

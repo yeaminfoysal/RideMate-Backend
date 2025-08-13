@@ -12,3 +12,15 @@ RideRoute.post(
     checkAuth("ADMIN", "USER", "DRIVER"),
     RideController.requestRide
 )
+
+RideRoute.patch(
+    "/cancel/:id",
+    checkAuth("ADMIN", "USER", "DRIVER"),
+    RideController.cancelRide
+)
+
+RideRoute.get(
+    "/me",
+    checkAuth("ADMIN", "USER", "DRIVER"),
+    RideController.getMyRides
+)

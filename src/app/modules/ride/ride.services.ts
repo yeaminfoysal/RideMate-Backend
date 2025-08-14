@@ -82,6 +82,25 @@ const getAvailableRides = async (driverId: string) => {
     return availableRides
 }
 
+const getMyRides = async (req: Request) => {
+
+    const { userId, driverId } = req.user as { userId?: string, driverId?: string };
+    const status = req.query?.status as string;
+
+    const filter: any = {};
+
+    if (driverId) filter.driver = driverId;
+    else if (userId) filter.rider = userId;
+
+    if (status === "pending") filter.status = { $nin: ["completed", "canceled"] };
+    else if (status === "completed") filter.status = "completed";
+    else if (status === "canceled") filter.status = "canceled";
+
+    const rides = await Ride.find(filter);
+
+    return rides
+}
+
 const rejectRide = async (rideId: string, driverId: string, reason?: string) => {
     const ride = await Ride.findById(rideId);
 
@@ -154,9 +173,15 @@ const acceptRide = async (rideId: string, driverId: string) => {
     return { ride, updatedDriver };
 };
 
-type RideStatus = 'picked_up' | 'in_transit' | 'completed';
+// type RideStatus = 'picked_up' | 'in_transit' | 'completed';
 
-const updateRideStatus = async (rideId: string, driverId: string, status: RideStatus) => {
+const updateRideStatus = async (rideId: string, driverId: string, status: string) => {
+    const allowedStatuses = ['picked_up', 'in_transit', 'completed'];
+
+    if (!allowedStatuses.includes(status)) {
+        throw new AppError(400, `Invalid ride status: ${status}`);
+    }
+
     const driver = await Driver.findById(driverId);
 
     if (!driver) {
@@ -192,6 +217,7 @@ export const RideServices = {
     requestRide,
     cancelRide,
     getAvailableRides,
+    getMyRides,
     rejectRide,
     acceptRide,
     updateRideStatus

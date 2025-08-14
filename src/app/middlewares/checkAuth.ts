@@ -19,7 +19,7 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         }
 
         if (isUserExist?.isBlocked) {
-            throw new AppError(400, "User is blocked or inactive")
+            throw new AppError(400, "User is blocked")
         }
 
         if (!authRoles.includes(verifiedToken.role)) {

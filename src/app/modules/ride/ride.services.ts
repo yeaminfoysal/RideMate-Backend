@@ -12,6 +12,11 @@ const requestRide = async (req: Request) => {
     const rideData: IRide = req.body;
     const riderId = (req.user as { userId: string }).userId;
 
+    const activeDrivers = await Driver.countDocuments({ isOnline: true });
+    if (!activeDrivers) {
+        throw new AppError(404, "No drivers are available at the moment.");
+    }
+
     const distance = getDistanceInKm(
         rideData.pickup.lat,
         rideData.pickup.lng,
@@ -21,9 +26,8 @@ const requestRide = async (req: Request) => {
     const fare = calculateFare(distance);
 
     const rider = await User.findById(riderId);
-
     if (!rider) {
-        throw new AppError(404, "User is not exist.")
+        throw new AppError(404, "User does not exist.");
     }
 
     if (rider.activeRide) {

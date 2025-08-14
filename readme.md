@@ -148,7 +148,7 @@ npm run dev
 
 The backend server is deployed and accessible at:
 
-**[🔗 Live API Base URL](https://your-deployed-server.com)**
+**[🔗 Live API Base URL](https://ride-mate-backend.vercel.app)**
 
 > You can use this URL as the base for all API requests in your frontend or API testing tools like Postman.
 ---

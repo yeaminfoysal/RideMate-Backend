@@ -34,6 +34,7 @@ const getAvailableRides = async (req: Request, res: Response, next: NextFunction
     try {
         const driverId = (req.user as { driverId: string }).driverId;
         const rides = await RideServices.getAvailableRides(driverId);
+        
 
         res.status(200).json({
             success: true,

@@ -86,7 +86,11 @@ const cancelRide = async (req: Request) => {
 
 const getAvailableRides = async (driverId: string) => {
 
-    const driver = await Driver.findById(driverId);
+    const driver = await Driver.findByIdAndUpdate(
+        driverId,
+        { isOnline: true },
+        { new: true }
+    );
 
     if (driver?.activeRide) {
         throw new AppError(403, "Already in an active ride.")

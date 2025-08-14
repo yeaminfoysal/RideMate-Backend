@@ -8,8 +8,8 @@ export interface ILocation {
 
 export interface IRide {
     _id?: Types.ObjectId,
-    rider: Types.ObjectId,
-    driver: Types.ObjectId,
+    rider?: Types.ObjectId,
+    driver?: Types.ObjectId,
     pickup: ILocation;
     destination: ILocation;
     status: 'canceled' | 'requested' | 'accepted' | 'picked_up' | 'in_transit' | 'completed',

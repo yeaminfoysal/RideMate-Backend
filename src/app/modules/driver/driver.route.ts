@@ -30,3 +30,9 @@ DriverRoute.get(
     checkAuth("ADMIN"),
     DriverController.getAllDrivers
 )
+
+DriverRoute.get(
+    "/earnings",
+    checkAuth("DRIVER"),
+    DriverController.getMyEarnings
+)

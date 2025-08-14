@@ -4,11 +4,22 @@ import { User } from "../user/user.model";
 import AppError from "../../errorHelpers/AppError";
 import { Ride } from "./ride.model";
 import { Driver } from "../driver/driver.model";
+import { calculateFare, getDistanceInKm } from "../../utils/getDistanceAndFare";
+import { IRide } from "./ride.interface";
 
 const requestRide = async (req: Request) => {
 
-    const rideData = req.body;
+    const rideData: IRide = req.body;
     const riderId = (req.user as { userId: string }).userId;
+
+    const distance = getDistanceInKm(
+        rideData.pickup.lat,
+        rideData.pickup.lng,
+        rideData.destination.lat,
+        rideData.destination.lng
+    )
+    const fare = calculateFare(distance);
+
     const rider = await User.findById(riderId);
 
     if (!rider) {
@@ -26,6 +37,7 @@ const requestRide = async (req: Request) => {
     const ride = await Ride.create(
         {
             rider: riderId,
+            fare,
             ...rideData
         })
 
@@ -40,7 +52,7 @@ const cancelRide = async (req: Request) => {
     const riderId = (req.user as { userId?: string }).userId;
 
     const ride = await Ride.findById(rideId);
-    if (!ride) {
+    if (!ride?.rider) {
         throw new AppError(404, "Ride does not exist.");
     }
 
@@ -184,8 +196,6 @@ const acceptRide = async (rideId: string, driverId: string) => {
     return { ride, updatedDriver };
 };
 
-// type RideStatus = 'picked_up' | 'in_transit' | 'completed';
-
 const updateRideStatus = async (rideId: string, driverId: string, status: string) => {
     const allowedStatuses = ['picked_up', 'in_transit', 'completed'];
 
@@ -194,10 +204,7 @@ const updateRideStatus = async (rideId: string, driverId: string, status: string
     }
 
     const driver = await Driver.findById(driverId);
-
-    if (!driver) {
-        throw new AppError(404, "Driver not found.");
-    }
+    if (!driver) throw new AppError(404, "Driver not found.");
 
     if (driver.activeRide?.toString() !== rideId) {
         throw new AppError(403, "You are not permitted to update this ride.");
@@ -205,22 +212,25 @@ const updateRideStatus = async (rideId: string, driverId: string, status: string
 
     const updateData: Record<string, any> = { status };
 
-    if (status === "completed") {
-        updateData.completedAt = new Date();
-        await Driver.findByIdAndUpdate(driverId, { activeRide: null });
-    }
     if (status === "picked_up") {
         updateData.pickedUpAt = new Date();
+    } else if (status === "completed") {
+        updateData.completedAt = new Date();
     }
 
     const ride = await Ride.findByIdAndUpdate(rideId, updateData, { new: true });
+    if (!ride) throw new AppError(404, "Ride not found.");
 
-    if (!ride) {
-        throw new AppError(404, "Ride not found.");
+    if (status === "completed") {
+        await Driver.findByIdAndUpdate(driverId, {
+            activeRide: null,
+            $inc: { totalEarnings: ride.fare }
+        });
     }
 
     return ride;
 };
+
 
 
 

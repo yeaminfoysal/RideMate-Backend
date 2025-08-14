@@ -56,9 +56,33 @@ const getAllDrivers = async (req: Request, res: Response, next: NextFunction) =>
     }
 }
 
+const getMyEarnings = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { driverId } = req.user as { driverId?: string };
+        const driver = await Driver.findById(driverId);
+
+        if (!driver) {
+            return res.status(404).json({
+                success: false,
+                message: "Driver not found",
+                data: null
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "All drivers retrieved successfully",
+            data: driver.totalEarnings
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const DriverController = {
     createDriver,
     setAvailability,
     setApprovalStatus,
-    getAllDrivers
+    getAllDrivers,
+    getMyEarnings
 }

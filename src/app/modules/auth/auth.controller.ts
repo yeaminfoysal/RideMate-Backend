@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import passport from "passport";
@@ -15,7 +16,7 @@ const credentialsLogin = async (req: Request, res: Response, next: NextFunction)
             }
 
             if (!user) {
-                return next(new AppError(401, info.message))
+                return next(new AppError(404, info.message))
             }
 
             let driverId;
@@ -47,4 +48,26 @@ const credentialsLogin = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
-export const AuthController = { credentialsLogin }
+const googleCallbackController = async (req: Request, res: Response, next: NextFunction) => {
+
+    let redirectTo = req.query.state ? req.query.state as string : ""
+
+    if (redirectTo.startsWith("/")) {
+        redirectTo = redirectTo.slice(1)
+    }
+
+    // /booking => booking , => "/" => ""
+    const user = req.user;
+
+    if (!user) {
+        throw new AppError(404, "User Not Found")
+    }
+
+    const tokenInfo = createUserToken(user)
+
+    setCookie(res, tokenInfo)
+
+    res.redirect(`${process.env.FRONTEND_URL}/${redirectTo}`)
+}
+
+export const AuthController = { credentialsLogin, googleCallbackController }

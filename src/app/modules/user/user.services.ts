@@ -41,7 +41,7 @@ const blockUser = async (payload: string) => {
     );
 
     if (!user) {
-        throw new AppError(400, "User does not exist")
+        throw new AppError(404, "User does not exist")
     }
     return user
 }
@@ -56,7 +56,7 @@ const unblockUser = async (payload: string) => {
     );
 
     if (!user) {
-        throw new AppError(400, "User does not exist")
+        throw new AppError(404, "User does not exist")
     }
     return user
 }

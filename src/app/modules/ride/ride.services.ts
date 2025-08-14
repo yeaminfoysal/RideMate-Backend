@@ -19,7 +19,7 @@ const requestRide = async (req: Request) => {
         const existingRide = await Ride.findById(rider.activeRide);
 
         if (existingRide && existingRide.status !== "completed") {
-            throw new AppError(400, "Already in an active ride.");
+            throw new AppError(403, "Already in an active ride.");
         }
     }
 
@@ -38,38 +38,49 @@ const requestRide = async (req: Request) => {
 const cancelRide = async (req: Request) => {
     const rideId = req.params.id;
     const riderId = (req.user as { userId?: string }).userId;
-    const ride = await Ride.findById(rideId);
 
+    const ride = await Ride.findById(rideId);
     if (!ride) {
-        throw new AppError(400, "Ride does not exist.")
+        throw new AppError(404, "Ride does not exist.");
     }
 
-    if (ride?.status !== "requested") {
-        throw new AppError(400, "Ride is already on processing")
+    if (ride.rider.toString() !== riderId) {
+        throw new AppError(403, "You are not allowed to cancel this ride.");
+    }
+
+    if (ride.status !== "requested") {
+        throw new AppError(400, "Ride is already in progress or completed.");
+    }
+
+    const totalCanceledRide = await Ride.countDocuments({ rider: riderId, status: "canceled" });
+    if (totalCanceledRide >= 5) {
+        throw new AppError(400, "Reached maximum number of cancellations.");
     }
 
     const updatedRide = await Ride.findByIdAndUpdate(
         rideId,
         { status: "canceled" },
         { new: true }
-    )
+    );
+
     const rider = await User.findByIdAndUpdate(
         riderId,
         { activeRide: null },
         { new: true }
-    )
-    return { updatedRide, rider }
-}
+    );
+
+    return { updatedRide, rider };
+};
 
 const getAvailableRides = async (driverId: string) => {
 
     const driver = await Driver.findById(driverId);
 
     if (driver?.activeRide) {
-        throw new AppError(400, "Already in an active ride.")
+        throw new AppError(403, "Already in an active ride.")
     }
     if (driver?.approvalStatus !== "approved") {
-        throw new AppError(400, "Driveer is not permited for ride at this moment.")
+        throw new AppError(403, "Driveer is not permited for ride at this moment.")
     }
 
     const availableRides = await Ride.find(
@@ -113,7 +124,7 @@ const rejectRide = async (rideId: string, driverId: string, reason?: string) => 
     )
 
     if (alreadyRejected) {
-        throw new AppError(400, "You have already rejected this ride.")
+        throw new AppError(403, "You have already rejected this ride.")
     }
 
     const updatedRide = await Ride.findByIdAndUpdate(
@@ -139,11 +150,11 @@ const acceptRide = async (rideId: string, driverId: string) => {
     }
 
     if (driver.activeRide) {
-        throw new AppError(400, "Already in an active ride.");
+        throw new AppError(403, "Already in an active ride.");
     }
 
     if (driver.approvalStatus !== "approved") {
-        throw new AppError(400, "Driver is not permitted for ride at this moment.");
+        throw new AppError(403, "Driver is not permitted for ride at this moment.");
     }
 
     const ride = await Ride.findOneAndUpdate(

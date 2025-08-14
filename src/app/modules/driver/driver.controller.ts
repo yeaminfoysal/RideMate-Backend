@@ -6,7 +6,7 @@ const createDriver = async (req: Request, res: Response, next: NextFunction) => 
     try {
         const driver = await DriverServices.createDriver(req);
 
-        res.status(200).json({
+        res.status(201).json({
             success: true,
             message: "Driver created successfully",
             data: driver
@@ -21,7 +21,7 @@ const setAvailability = async (req: Request, res: Response, next: NextFunction) 
         const driver = await DriverServices.setAvailability(req)
         res.status(200).json({
             success: true,
-            message: "Updated active successfully",
+            message: "Updated availability status successfully.",
             data: driver
         })
     } catch (error) {

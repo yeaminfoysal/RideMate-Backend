@@ -26,7 +26,7 @@ export const createNewAccessToken = async (refreshToken: string) => {
     const isUserExist = await User.findOne({ email: verifiedRefreshToken.email });
 
     if (!isUserExist) {
-        throw new AppError(400, "User is not exist")
+        throw new AppError(404, "User is not exist")
     }
 
     const jwtPayload = {

@@ -28,6 +28,11 @@ const rideSchema = new Schema<IRide>({
         default: "requested"
     },
     fare: { type: Number, default: 0 },
+    paymentMethod: {
+        type: String,
+        enum: ['bkash', 'rocket', 'visa', 'master'],
+        required: true
+    },
     requestedAt: { type: Date, default: Date.now },
     acceptedAt: { type: Date },
     pickedUpAt: { type: Date },

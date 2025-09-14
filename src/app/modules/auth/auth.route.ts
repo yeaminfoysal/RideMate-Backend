@@ -6,6 +6,8 @@ export const authRoutes = Router();
 
 authRoutes.post("/login", AuthController.credentialsLogin);
 
+authRoutes.post("/logout", AuthController.logout)
+
 authRoutes.get("/google", async (req: Request, res: Response, next: NextFunction) => {
     const redirect = req.query.redirect || "/"
     passport.authenticate("google", { scope: ["profile", "email"], state: redirect as string })(req, res, next)

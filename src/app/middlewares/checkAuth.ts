@@ -6,7 +6,7 @@ import { User } from "../modules/user/user.model";
 
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const accessToken = req.headers.authorization;
+        const accessToken = req.headers.authorization || req.cookies.accessToken;
         if (!accessToken) {
             throw new AppError(403, "No access thoken");
         }
@@ -18,9 +18,9 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
             throw new AppError(400, "User is not exist")
         }
 
-        if (isUserExist?.isBlocked) {
-            throw new AppError(400, "User is blocked")
-        }
+        // if (isUserExist?.isBlocked) {
+        //     throw new AppError(400, "User is blocked")
+        // }
 
         if (!authRoles.includes(verifiedToken.role)) {
             throw new AppError(403, "You are not permited to view this route")

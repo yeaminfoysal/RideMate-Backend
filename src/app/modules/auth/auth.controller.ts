@@ -48,6 +48,30 @@ const credentialsLogin = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax"
+        })
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax"
+        })
+
+        res.status(200).json({
+            message: "User logged out successfull",
+            success: true,
+            data: null
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const googleCallbackController = async (req: Request, res: Response, next: NextFunction) => {
 
     let redirectTo = req.query.state ? req.query.state as string : ""
@@ -70,4 +94,4 @@ const googleCallbackController = async (req: Request, res: Response, next: NextF
     res.redirect(`${process.env.FRONTEND_URL}/${redirectTo}`)
 }
 
-export const AuthController = { credentialsLogin, googleCallbackController }
+export const AuthController = { credentialsLogin, logout, googleCallbackController }

@@ -14,6 +14,7 @@ export interface IRide {
     destination: ILocation;
     status: 'canceled' | 'requested' | 'accepted' | 'picked_up' | 'in_transit' | 'completed',
     fare?: number;
+    paymentMethod: "bkash" | "rocket" | "visa" | "master"
     requestedAt?: Date;
     acceptedAt?: Date;
     pickedUpAt?: Date;

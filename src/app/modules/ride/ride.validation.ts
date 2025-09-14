@@ -18,6 +18,9 @@ export const createRideZodSchema = z.object({
   status: z
     .enum(["requested", "accepted", "picked_up", "in_transit", "completed"])
     .optional(),
+  paymentMethod: z
+    .enum(["bkash", "rocket", "visa", "master"])
+    .optional(),
   fare: z.number().optional(),
 });
 

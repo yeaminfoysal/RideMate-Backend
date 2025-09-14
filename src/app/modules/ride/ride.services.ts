@@ -6,6 +6,7 @@ import { Ride } from "./ride.model";
 import { Driver } from "../driver/driver.model";
 import { calculateFare, getDistanceInKm } from "../../utils/getDistanceAndFare";
 import { IRide } from "./ride.interface";
+import { QueryBuilder } from "../../utils/QueryBuilder";
 
 const requestRide = async (req: Request) => {
 
@@ -92,7 +93,6 @@ const getAvailableRides = async (driverId: string) => {
 
     const driver = await Driver.findByIdAndUpdate(
         driverId,
-        { isOnline: true },
         { new: true }
     );
 
@@ -108,28 +108,60 @@ const getAvailableRides = async (driverId: string) => {
             status: "requested",
             "rejectedBy.driverId": { $ne: driverId }
         }
-    );
+    ).populate("rider", "name");
+
+    console.log(availableRides)
 
     return availableRides
 }
 
 const getMyRides = async (req: Request) => {
 
+    // const { userId, driverId } = req.user as { userId?: string, driverId?: string };
+
+    // const status = req.query?.status as string;
+
+    // const filter: any = {};
+
+    // if (driverId) filter.driver = driverId;
+    // else if (userId) filter.rider = userId;
+
+    // if (status === "pending") filter.status = { $nin: ["completed", "canceled"] };
+    // else if (status === "completed") filter.status = "completed";
+    // else if (status === "canceled") filter.status = "canceled";
+
+    // const rides = await Ride.find(filter);
+
+    // return rides
+
     const { userId, driverId } = req.user as { userId?: string, driverId?: string };
-    const status = req.query?.status as string;
 
-    const filter: any = {};
+    const query = req.query as Record<string, string>;
 
-    if (driverId) filter.driver = driverId;
-    else if (userId) filter.rider = userId;
+    if (driverId) query.driver = driverId;
+    else if (userId) query.rider = userId;
 
-    if (status === "pending") filter.status = { $nin: ["completed", "canceled"] };
-    else if (status === "completed") filter.status = "completed";
-    else if (status === "canceled") filter.status = "canceled";
+    const rideSearchableFields = ["pickup.address", "destination.address"]
 
-    const rides = await Ride.find(filter);
+    const queryBuilder = new QueryBuilder(Ride.find(), query)
 
-    return rides
+    const rides = queryBuilder
+        .search(rideSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+
+    // const meta = await queryBuilder.getMeta()
+
+    const [data, meta] = await Promise.all([
+        rides.build(),
+        queryBuilder.getMeta()
+    ])
+
+    return { data, meta }
+
+
 }
 
 const rejectRide = async (rideId: string, driverId: string, reason?: string) => {

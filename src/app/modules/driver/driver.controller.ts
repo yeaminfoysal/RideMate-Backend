@@ -29,6 +29,21 @@ const setAvailability = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
+const getAvailabilityStatus = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { driverId } = req.user as { driverId?: string };
+        const driver = await Driver.findById(driverId).select("isOnline");
+
+        res.status(200).json({
+            success: true,
+            message: "Retrived driver availability status successfully.",
+            data: driver
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const setApprovalStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const driver = await DriverServices.setApprovalStatus(req)
@@ -82,6 +97,7 @@ const getMyEarnings = async (req: Request, res: Response, next: NextFunction) =>
 export const DriverController = {
     createDriver,
     setAvailability,
+    getAvailabilityStatus,
     setApprovalStatus,
     getAllDrivers,
     getMyEarnings

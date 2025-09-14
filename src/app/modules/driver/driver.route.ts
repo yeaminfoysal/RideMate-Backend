@@ -19,6 +19,12 @@ DriverRoute.patch(
     DriverController.setAvailability
 )
 
+DriverRoute.get(
+    "/availability-status",
+    checkAuth("DRIVER"),
+    DriverController.getAvailabilityStatus
+)
+
 DriverRoute.patch(
     "/approval/:id",
     checkAuth("ADMIN"),

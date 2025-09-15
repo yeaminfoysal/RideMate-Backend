@@ -6,6 +6,7 @@ import AppError from "../../errorHelpers/AppError";
 import { createUserToken } from "../../utils/createUserTokens";
 import { setCookie } from "../../utils/setCookie";
 import { Driver } from "../driver/driver.model";
+import { authServices } from "./auth.services";
 
 
 const credentialsLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -72,6 +73,29 @@ const logout = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+
+const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const oldPassword = req.body.currentPassword;
+        const newPassword = req.body.newPassword;
+        const decodedToken = req.user;
+
+        if (!decodedToken) {
+            throw new AppError(400, "Invalid decoded token");
+        }
+
+        await authServices.changePassword(oldPassword, newPassword, decodedToken);
+
+        res.status(200).json({
+            message: "Password changed successfull",
+            success: true,
+            data: null
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const googleCallbackController = async (req: Request, res: Response, next: NextFunction) => {
 
     let redirectTo = req.query.state ? req.query.state as string : ""
@@ -94,4 +118,4 @@ const googleCallbackController = async (req: Request, res: Response, next: NextF
     res.redirect(`${process.env.FRONTEND_URL}/${redirectTo}`)
 }
 
-export const AuthController = { credentialsLogin, logout, googleCallbackController }
+export const AuthController = { credentialsLogin, changePassword, logout, googleCallbackController }

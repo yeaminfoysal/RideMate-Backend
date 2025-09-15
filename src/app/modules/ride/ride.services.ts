@@ -271,6 +271,21 @@ const updateRideStatus = async (rideId: string, driverId: string, status: string
     return ride;
 };
 
+const getRideDetails = async (rideId: string) => {
+
+    const ride = await Ride.findById(rideId)
+        .populate({
+            path: "driver",
+            select: "vehicle licenseNumber user",
+            populate: {
+                path: "user", // nested populate inside driver
+                select: "name email"
+            }
+        })
+        .populate("rider", "name")
+
+    return ride;
+};
 
 
 
@@ -281,5 +296,6 @@ export const RideServices = {
     getMyRides,
     rejectRide,
     acceptRide,
-    updateRideStatus
+    updateRideStatus,
+    getRideDetails
 }

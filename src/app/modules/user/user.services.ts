@@ -61,8 +61,15 @@ const unblockUser = async (payload: string) => {
     return user
 }
 
+const updateProfile = async (payload: Iuser, userId: string) => {
+
+    const user = await User.findByIdAndUpdate(userId, payload, { new: true })
+    return user;
+}
+
 export const UserServices = {
     createUser,
     blockUser,
-    unblockUser
+    unblockUser,
+    updateProfile
 }

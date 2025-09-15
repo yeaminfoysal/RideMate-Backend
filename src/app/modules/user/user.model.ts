@@ -28,7 +28,8 @@ const userSchema = new Schema<Iuser>(
             type: [authProviderSchema],
             default: [],
         },
-        isBlocked: { type: Boolean, default: false }
+        isBlocked: { type: Boolean, default: false },
+        phone: { type: String }
     },
     {
         versionKey: false,

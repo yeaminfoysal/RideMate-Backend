@@ -1,12 +1,19 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { AuthController } from "./auth.controller";
 import passport from "passport";
+import { checkAuth } from "../../middlewares/checkAuth";
 
 export const authRoutes = Router();
 
 authRoutes.post("/login", AuthController.credentialsLogin);
 
-authRoutes.post("/logout", AuthController.logout)
+authRoutes.post("/logout", AuthController.logout);
+
+authRoutes.patch(
+    "/change-password",
+    checkAuth("USER", "DRIVER", "ADMIN"),
+    AuthController.changePassword
+);
 
 authRoutes.get("/google", async (req: Request, res: Response, next: NextFunction) => {
     const redirect = req.query.redirect || "/"

@@ -54,3 +54,9 @@ RideRoute.patch(
     checkAuth("DRIVER"),
     RideController.updateRideStatus
 )
+
+RideRoute.get(
+    "/details/:id",
+    checkAuth("ADMIN", "USER", "DRIVER"),
+    RideController.getRideDetails
+)

@@ -68,7 +68,6 @@ const getMyProfile = async (req: Request, res: Response, next: NextFunction) => 
     try {
         const email = (req.user as { email?: string })?.email;
         const user = await User.findOne({ email })
-        console.log(req.user);
 
         res.status(200).json({
             seccess: true,
@@ -80,10 +79,30 @@ const getMyProfile = async (req: Request, res: Response, next: NextFunction) => 
     }
 }
 
-export const UserControllers = { 
-    createUser, 
-    getAllUsers, 
-    blockUser, 
-    unblockUser, 
-    getMyProfile 
+const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const userId = (req.user as { userId: string })?.userId;
+        const user = await UserServices.updateProfile(req.body, userId);
+
+        // console.log(req.user)
+
+        res.status(201).json({
+            success: true,
+            message: "User updated successfully",
+            data: user
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+export const UserControllers = {
+    createUser,
+    getAllUsers,
+    blockUser,
+    unblockUser,
+    getMyProfile,
+    updateProfile
 }

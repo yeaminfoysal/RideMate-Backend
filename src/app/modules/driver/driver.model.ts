@@ -14,8 +14,8 @@ const driverSchema = new Schema<IDriver>({
         default: 'none'
     },
     isOnline: { type: Boolean, default: false },
-    vehicle: { type: String, required: true },
-    licenseNumber: { type: String, required: true, unique: true },
+    vehicle: { type: String },
+    licenseNumber: { type: String, unique: true, sparse: true },
     activeRide: {
         type: Schema.Types.ObjectId,
         ref: "Ride",

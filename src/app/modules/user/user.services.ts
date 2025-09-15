@@ -1,35 +1,67 @@
 
+import mongoose from "mongoose";
 import AppError from "../../errorHelpers/AppError";
+import { Driver } from "../driver/driver.model";
 import { IAuthProvider, Iuser } from "./user.interface";
 import { User } from "./user.model";
 import bcrypt from "bcryptjs";
 
-const createUser = async (payload: Iuser) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { email, password, auths, ...rest } = payload;
+export const createUser = async (payload: Iuser) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const isUserExist = await User.findOne({ email });
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { email, password, role, auths, ...rest } = payload;
 
-    if (isUserExist) {
-        throw new AppError(400, "User already exist")
+        const existingUser = await User.findOne({ email }).session(session);
+        if (existingUser) {
+            throw new AppError(400, "User already exists");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const authProvider: IAuthProvider = {
+            provider: "credentials",
+            providerId: email,
+        };
+
+        const user = await User.create(
+            [
+                {
+                    email,
+                    password: hashedPassword,
+                    auths: [authProvider],
+                    role,
+                    ...rest,
+                },
+            ],
+            { session }
+        );
+
+        let driver = null;
+        if (role === "DRIVER") {
+            driver = await Driver.create(
+                [
+                    {
+                        user: user[0]._id,
+                        ...rest,
+                    },
+                ],
+                { session }
+            );
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return { user: user[0], driver };
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
     }
-    console.log("From log: ✅", isUserExist);
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const authProvider: IAuthProvider = {
-        provider: "credentials",
-        providerId: email
-    };
-
-    const user = await User.create({
-        email,
-        password: hashedPassword,
-        auths: [authProvider],
-        ...rest
-    })
-    return user;
-}
+};
 
 const blockUser = async (payload: string) => {
     const id = payload;

@@ -5,19 +5,19 @@ import { Driver } from "./driver.model";
 import { Ride } from "../ride/ride.model";
 import mongoose from "mongoose";
 
-const createDriver = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const driver = await DriverServices.createDriver(req);
+// const createDriver = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const driver = await DriverServices.createDriver(req);
 
-        res.status(201).json({
-            success: true,
-            message: "Driver created successfully",
-            data: driver
-        })
-    } catch (error) {
-        next(error)
-    }
-}
+//         res.status(201).json({
+//             success: true,
+//             message: "Driver created successfully",
+//             data: driver
+//         })
+//     } catch (error) {
+//         next(error)
+//     }
+// }
 
 const setAvailability = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -170,7 +170,7 @@ const getDriverProfile = async (req: Request, res: Response, next: NextFunction)
         const driverId = (req.user as { driverId: string }).driverId;
         const driver = await Driver
             .findById(driverId)
-            .select("vehicle licenseNumber approvalStatus");
+            .select("vehicle licenseNumber approvalStatus isOnline activeRide");
 
         res.status(200).json({
             success: true,
@@ -183,7 +183,7 @@ const getDriverProfile = async (req: Request, res: Response, next: NextFunction)
 }
 
 export const DriverController = {
-    createDriver,
+    // createDriver,
     setAvailability,
     getAvailabilityStatus,
     setApprovalStatus,

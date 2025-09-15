@@ -8,5 +8,5 @@ export interface IDriver {
     vehicle: string,
     activeRide: Types.ObjectId | null,
     totalEarnings: number,
-    licenseNumber: string
+    licenseNumber?: string
 }

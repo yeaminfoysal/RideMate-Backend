@@ -194,7 +194,7 @@ const rejectRide = async (rideId: string, driverId: string, reason?: string) => 
                     reason: reason || null,
                 },
             },
-            $set: { status: "requested" },
+            $set: { status: "requested", driver: null },
         },
         { new: true }
     )

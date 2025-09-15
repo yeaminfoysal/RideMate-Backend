@@ -16,18 +16,20 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+const getAllUsersDrivers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const users = await User.find({});
-        const totalUsers = await User.countDocuments();
+        const data = await UserServices.getAllUsersDrivers()
+
+        console.log(data)
 
         res.status(200).json({
             seccess: true,
             message: "All users retrived successfully",
-            data: users,
-            meta: {
-                total: totalUsers
-            }
+            data: data
+            // meta: {
+            //     totalUsers,
+            //     totalDrivers
+            // }
         })
     } catch (error) {
         next(error)
@@ -100,7 +102,7 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
 
 export const UserControllers = {
     createUser,
-    getAllUsers,
+    getAllUsersDrivers,
     blockUser,
     unblockUser,
     getMyProfile,

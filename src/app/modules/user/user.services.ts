@@ -63,6 +63,26 @@ export const createUser = async (payload: Iuser) => {
     }
 };
 
+export const getAllUsersDrivers = async () => {
+
+    const users = await User
+        .find()
+        .select("role name email isBlocked");
+
+    const drivers = await Driver
+        .find()
+        .select("approvalStatus isOnline licenseNumber vehicle activeRide")
+        .populate({
+            path: "user",
+            select: "name email phone"
+        });
+
+    const totalUsers = await User.countDocuments();
+    const totalDrivers = await Driver.countDocuments();
+
+    return { users, drivers, totalDrivers, totalUsers }
+};
+
 const blockUser = async (payload: string) => {
     const id = payload;
 
@@ -103,5 +123,6 @@ export const UserServices = {
     createUser,
     blockUser,
     unblockUser,
-    updateProfile
+    updateProfile,
+    getAllUsersDrivers
 }

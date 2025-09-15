@@ -15,9 +15,9 @@ UserRoutes.post(
 );
 
 UserRoutes.get(
-    "/all-users",
+    "/all-users-drivers",
     checkAuth("ADMIN"),
-    UserControllers.getAllUsers
+    UserControllers.getAllUsersDrivers
 );
 
 UserRoutes.get(

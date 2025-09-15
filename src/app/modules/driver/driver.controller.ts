@@ -32,7 +32,7 @@ const setAvailability = async (req: Request, res: Response, next: NextFunction) 
 const getAvailabilityStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { driverId } = req.user as { driverId?: string };
-        const driver = await Driver.findById(driverId).select("isOnline");
+        const driver = await Driver.findById(driverId).select("isOnline activeRide");
 
         res.status(200).json({
             success: true,

@@ -60,3 +60,9 @@ RideRoute.get(
     checkAuth("ADMIN", "USER", "DRIVER"),
     RideController.getRideDetails
 )
+
+RideRoute.get(
+    "/active",
+    checkAuth("ADMIN", "USER", "DRIVER"),
+    RideController.getActiveRide
+)

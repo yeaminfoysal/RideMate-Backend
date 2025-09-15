@@ -150,6 +150,20 @@ const getRideDetails = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 
+const getActiveRide = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const ride = await RideServices.getActiveRide(req);
+
+        res.status(200).json({
+            success: true,
+            message: "Active ride retrieved successfully.",
+            data: ride
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const RideController = {
     requestRide,
     cancelRide,
@@ -159,5 +173,6 @@ export const RideController = {
     acceptRide,
     getAllRides,
     updateRideStatus,
-    getRideDetails
+    getRideDetails,
+    getActiveRide
 }

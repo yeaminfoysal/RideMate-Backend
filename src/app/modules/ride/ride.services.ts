@@ -279,7 +279,7 @@ const getRideDetails = async (rideId: string) => {
             select: "vehicle licenseNumber user",
             populate: {
                 path: "user", // nested populate inside driver
-                select: "name email"
+                select: "name email phone"
             }
         })
         .populate("rider", "name")
@@ -287,6 +287,35 @@ const getRideDetails = async (rideId: string) => {
     return ride;
 };
 
+const getActiveRide = async (req: Request) => {
+    const { userId, driverId } = req.user as { userId?: string; driverId?: string };
+
+    if (driverId) {
+        return await Driver.findById(driverId)
+            .populate("activeRide")
+            .select("activeRide")
+            .lean();
+    }
+
+    if (userId) {
+        return await User.findById(userId)
+            .populate({
+                path: "activeRide",
+                populate: {
+                    path: "driver",
+                    select: "vehicle licenseNumber",
+                    populate: {
+                        path: "user",
+                        select: "name email phone",
+                    },
+                },
+            })
+            .select("activeRide")
+            .lean();
+    }
+
+    return null;
+};
 
 
 export const RideServices = {
@@ -297,5 +326,6 @@ export const RideServices = {
     rejectRide,
     acceptRide,
     updateRideStatus,
-    getRideDetails
+    getRideDetails,
+    getActiveRide
 }

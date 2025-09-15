@@ -266,6 +266,9 @@ const updateRideStatus = async (rideId: string, driverId: string, status: string
             activeRide: null,
             $inc: { totalEarnings: ride.fare }
         });
+        await User.findByIdAndUpdate(ride.rider, {
+            activeRide: null,
+        });
     }
 
     return ride;

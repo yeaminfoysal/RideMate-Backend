@@ -42,3 +42,15 @@ DriverRoute.get(
     checkAuth("DRIVER"),
     DriverController.getMyEarnings
 )
+
+DriverRoute.patch(
+    "/update-profile",
+    checkAuth("DRIVER"),
+    DriverController.updateDriverProfile
+)
+
+DriverRoute.get(
+    "/profile",
+    checkAuth("DRIVER"),
+    DriverController.getDriverProfile
+)

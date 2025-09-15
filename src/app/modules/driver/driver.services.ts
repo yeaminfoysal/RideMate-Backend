@@ -42,8 +42,23 @@ const setApprovalStatus = async (req: Request) => {
     return driver
 }
 
+const updateDriverProfile = async (req: Request) => {
+
+    const driverId = (req.user as { driverId?: string }).driverId;;
+    const vehicle = req.body.vehicle;
+    const licenseNumber = req.body.licenseNumber;
+
+    const driver = await Driver.findByIdAndUpdate(
+        driverId,
+        { vehicle, licenseNumber },
+        { new: true }
+    )
+    return driver
+}
+
 export const DriverServices = {
     createDriver,
     setAvailability,
-    setApprovalStatus
+    setApprovalStatus,
+    updateDriverProfile
 }

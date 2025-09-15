@@ -5,6 +5,8 @@ import { Driver } from "../driver/driver.model";
 import { IAuthProvider, Iuser } from "./user.interface";
 import { User } from "./user.model";
 import bcrypt from "bcryptjs";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { Request } from "express";
 
 export const createUser = async (payload: Iuser) => {
     const session = await mongoose.startSession();
@@ -63,24 +65,27 @@ export const createUser = async (payload: Iuser) => {
     }
 };
 
-export const getAllUsersDrivers = async () => {
+const getAllUsers = async (req: Request) => {
 
-    const users = await User
-        .find()
-        .select("role name email isBlocked");
+    const query = req.query as Record<string, string>;
 
-    const drivers = await Driver
-        .find()
-        .select("approvalStatus isOnline licenseNumber vehicle activeRide")
-        .populate({
-            path: "user",
-            select: "name email phone"
-        });
+    const rideSearchableFields = ["name", "email"]
 
-    const totalUsers = await User.countDocuments();
-    const totalDrivers = await Driver.countDocuments();
+    const queryBuilder = new QueryBuilder(User.find(), query)
 
-    return { users, drivers, totalDrivers, totalUsers }
+    const users = queryBuilder
+        .search(rideSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        // .paginate()
+
+    const [data, meta] = await Promise.all([
+        users.build(),
+        queryBuilder.getMeta()
+    ])
+
+    return { data, meta }
 };
 
 const blockUser = async (payload: string) => {
@@ -124,5 +129,5 @@ export const UserServices = {
     blockUser,
     unblockUser,
     updateProfile,
-    getAllUsersDrivers
+    getAllUsers
 }

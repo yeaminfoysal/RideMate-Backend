@@ -62,7 +62,7 @@ const setApprovalStatus = async (req: Request, res: Response, next: NextFunction
 
 const getAllDrivers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const drivers = await Driver.find()
+        const drivers = await DriverServices.getAllDrivers(req)
 
         res.status(200).json({
             success: true,

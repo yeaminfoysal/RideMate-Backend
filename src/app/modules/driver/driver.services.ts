@@ -1,6 +1,24 @@
 import { Request } from "express";
 import { Driver } from "./driver.model";
 import { User } from "../user/user.model";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+
+
+interface DriverPopulated {
+  _id: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    isBlocked?: boolean;
+  };
+  approvalStatus: string;
+  isOnline: boolean;
+  licenseNumber?: string;
+  vehicle?: string;
+  totalEarnings?: number;
+}
 
 const createDriver = async (req: Request) => {
 
@@ -56,9 +74,41 @@ const updateDriverProfile = async (req: Request) => {
     return driver
 }
 
+const getAllDrivers = async (req: Request) => {
+  const query = req.query as Record<string, string>;
+  const searchTerm = query.searchTerm?.toLowerCase() || "";
+
+  const queryBuilder = new QueryBuilder(
+    Driver.find().populate("user"), 
+    query
+  );
+
+  const driversQuery = queryBuilder
+    .filter()
+    .sort()
+    .fields();
+    // .paginate()
+
+  let data: DriverPopulated[] = await driversQuery.build() as unknown as DriverPopulated[];
+
+  // Post-process search on populated fields
+  if (searchTerm) {
+    data = data.filter(driver => {
+      const name = driver.user?.name?.toLowerCase() || "";
+      const email = driver.user?.email?.toLowerCase() || "";
+      return name.includes(searchTerm) || email.includes(searchTerm);
+    });
+  }
+
+  const meta = await queryBuilder.getMeta();
+
+  return { data, meta };
+};
+
 export const DriverServices = {
     createDriver,
     setAvailability,
     setApprovalStatus,
-    updateDriverProfile
+    updateDriverProfile,
+    getAllDrivers
 }

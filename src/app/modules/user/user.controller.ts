@@ -16,9 +16,9 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
-const getAllUsersDrivers = async (req: Request, res: Response, next: NextFunction) => {
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const data = await UserServices.getAllUsersDrivers()
+        const data = await UserServices.getAllUsers(req)
 
         console.log(data)
 
@@ -102,7 +102,7 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
 
 export const UserControllers = {
     createUser,
-    getAllUsersDrivers,
+    getAllUsers,
     blockUser,
     unblockUser,
     getMyProfile,

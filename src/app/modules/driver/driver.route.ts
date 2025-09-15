@@ -32,7 +32,7 @@ DriverRoute.patch(
 )
 
 DriverRoute.get(
-    "/all",
+    "/all-drivers",
     checkAuth("ADMIN"),
     DriverController.getAllDrivers
 )

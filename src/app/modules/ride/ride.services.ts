@@ -167,8 +167,12 @@ const getMyRides = async (req: Request) => {
 const rejectRide = async (rideId: string, driverId: string, reason?: string) => {
     const ride = await Ride.findById(rideId);
 
-    if (ride?.status !== "requested") {
-        throw new AppError(400, "Ride's status has been changed.")
+    // if (ride?.status !== "requested") {
+    //     throw new AppError(400, "Ride's status has been changed.")
+    // }
+
+    if (!ride) {
+        throw new AppError(400, "Invalied ride.")
     }
 
     const alreadyRejected = ride.rejectedBy.some(
@@ -179,15 +183,18 @@ const rejectRide = async (rideId: string, driverId: string, reason?: string) => 
         throw new AppError(403, "You have already rejected this ride.")
     }
 
+    await Driver.findByIdAndUpdate(driverId, { activeRide: null })
+
     const updatedRide = await Ride.findByIdAndUpdate(
         rideId,
         {
             $push: {
                 rejectedBy: {
                     driverId,
-                    reason: reason || null
-                }
-            }
+                    reason: reason || null,
+                },
+            },
+            $set: { status: "requested" },
         },
         { new: true }
     )

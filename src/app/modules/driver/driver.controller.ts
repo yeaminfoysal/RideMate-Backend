@@ -96,7 +96,12 @@ const getMyEarnings = async (req: Request, res: Response, next: NextFunction) =>
 
         // Aggregate rides for daily, weekly, and monthly earnings
         const aggregation = await Ride.aggregate([
-            { $match: { driver: new mongoose.Types.ObjectId(driverId) } },
+            {
+                $match: {
+                    driver: new mongoose.Types.ObjectId(driverId),
+                    status: "completed"
+                }
+            },
             {
                 $group: {
                     _id: null,

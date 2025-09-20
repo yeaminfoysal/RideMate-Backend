@@ -115,6 +115,77 @@ const getAvailableRides = async (driverId: string) => {
     return availableRides
 }
 
+const getAllRides = async (req: Request) => {
+    const query = req.query as Record<string, string>;
+    const searchTerm = query.searchTerm?.toLowerCase() || "";
+
+    // Step 1: populate rider and driver.user
+    let rides = await Ride.find()
+        .populate("rider", "name email")
+        .populate({
+            path: "driver",
+            populate: { path: "user", select: "name email" }
+        });
+
+    // Step 2: In-memory search on populated fields + destination.address
+    if (searchTerm) {
+        rides = rides.filter((ride: any) => {
+            return (
+                ride.rider?.name?.toLowerCase().includes(searchTerm) ||
+                ride.rider?.email?.toLowerCase().includes(searchTerm) ||
+                ride.driver?.user?.name?.toLowerCase().includes(searchTerm) ||
+                ride.driver?.user?.email?.toLowerCase().includes(searchTerm)
+            );
+        });
+    }
+
+    // Step 3: Filter by status
+    if (query.status) {
+        rides = rides.filter((ride: any) => ride.status === query.status);
+    }
+
+    // Step 4: Filter by requestedAt date (full day)
+    if (query.requestedAt) {
+        const date = new Date(query.requestedAt);
+        const startOfDay = new Date(date.setUTCHours(0, 0, 0, 0));
+        const endOfDay = new Date(date.setUTCHours(23, 59, 59, 999));
+
+        rides = rides.filter(
+            (ride: any) =>
+                new Date(ride.requestedAt) >= startOfDay &&
+                new Date(ride.requestedAt) <= endOfDay
+        );
+    }
+
+    // Step 5: Filter by fare range
+    if (query.minFare) rides = rides.filter((r) => (r.fare ?? 0) >= Number(query.minFare));
+    if (query.maxFare) rides = rides.filter((r) => (r.fare ?? 0) <= Number(query.maxFare));
+
+    // Step 6: Sort (optional)
+    const sortField = query.sort || "requestedAt";
+    const sortOrder = query.sort?.startsWith("-") ? 1 : -1;
+    rides.sort((a: any, b: any) => {
+        const aValue = a[sortField] ? new Date(a[sortField]).getTime() : 0;
+        const bValue = b[sortField] ? new Date(b[sortField]).getTime() : 0;
+        return sortOrder * (aValue - bValue);
+    });
+
+    // Step 7: Pagination
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const total = rides.length;
+    const totalPage = Math.ceil(total / limit);
+    const paginatedRides = rides.slice((page - 1) * limit, page * limit);
+
+    return { data: paginatedRides, meta: { page, limit, total, totalPage } };
+};
+
+
+
+
+
+
+
 const getMyRides = async (req: Request) => {
 
     // const { userId, driverId } = req.user as { userId?: string, driverId?: string };
@@ -332,6 +403,7 @@ export const RideServices = {
     requestRide,
     cancelRide,
     getAvailableRides,
+    getAllRides,
     getMyRides,
     rejectRide,
     acceptRide,

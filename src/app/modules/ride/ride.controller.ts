@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { RideServices } from "./ride.services";
-import { Ride } from "./ride.model";
 
 const requestRide = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -103,7 +102,7 @@ const acceptRide = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAllRides = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const rides = await Ride.find();
+        const rides = await RideServices.getAllRides(req);
 
         res.status(200).json({
             success: true,

@@ -5,6 +5,11 @@ export interface IAuthProvider {
     providerId: string
 }
 
+export interface IEmmergencyContact {
+    email: string;
+    phone: string
+}
+
 export interface Iuser {
     _id?: Types.ObjectId,
     name: string,
@@ -14,5 +19,6 @@ export interface Iuser {
     activeRide: Types.ObjectId | null;
     auths: IAuthProvider[];
     isBlocked: boolean,
-    phone?: string
+    phone?: string,
+    emergencyContact?: IEmmergencyContact
 }

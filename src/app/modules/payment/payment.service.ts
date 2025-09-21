@@ -56,16 +56,16 @@ const initPayment = async (rideId: string) => {
             }
         );
 
-        await Payment.findByIdAndUpdate(
+        const updatedPayment = await Payment.findByIdAndUpdate(
             payment._id,
             { paymentUrl: sslPayment.GatewayPageURL },
-            { session }
+            { session, new: true }
         )
 
         await session.commitTransaction(); //transaction
         session.endSession()
-        return { success: true, message: "Payment Completed Successfully" }
-        
+        return { success: true, message: "Payment Completed Successfully", updatedPayment }
+
     } catch (error: any) {
         await session.abortTransaction()  // rollback
         session.endSession()
@@ -84,7 +84,7 @@ const successPayment = async (query: Record<string, string>) => {
 
         const updatedPayment = await Payment.findOneAndUpdate(
             { transactionId: query.transactionId },
-            { status: PAYMENT_STATUS.PAID },
+            { status: PAYMENT_STATUS.PAID, paymentUrl: null },
             { session: session }
         )
 
@@ -94,7 +94,7 @@ const successPayment = async (query: Record<string, string>) => {
 
         const updatedRide = await Ride.findByIdAndUpdate(
             updatedPayment?.ride,
-            { paymentStatus: RIDE_PAYMENT_STATUS.COMPLETE },
+            { paymentStatus: RIDE_PAYMENT_STATUS.COMPLETE, paymentUrl: null },
             { runValidators: true, session }
         )
 
@@ -173,7 +173,7 @@ const failPayment = async (query: Record<string, string>) => {
 
         await session.commitTransaction(); //transaction
         session.endSession()
-        return { success: false, message: "Payment Failed" }
+        return { success: false, message: "Payment Failed", rideId: updatedRide._id }
 
     } catch (error) {
         await session.abortTransaction(); // rollback
@@ -208,7 +208,7 @@ const cancelPayment = async (query: Record<string, string>) => {
 
         await session.commitTransaction(); //transaction
         session.endSession()
-        return { success: false, message: "Payment Cancelled" }
+        return { success: false, message: "Payment Cancelled", rideId: updatedRide._id }
     } catch (error) {
         await session.abortTransaction(); // rollback
         session.endSession()

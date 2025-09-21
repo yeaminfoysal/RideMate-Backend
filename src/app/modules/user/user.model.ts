@@ -1,10 +1,18 @@
 import { model, Schema } from "mongoose";
-import { IAuthProvider, Iuser } from "./user.interface";
+import { IAuthProvider, IEmmergencyContact, Iuser } from "./user.interface";
 
 const authProviderSchema = new Schema<IAuthProvider>(
     {
         provider: { type: String, required: true },
         providerId: { type: String, required: true },
+    },
+    { _id: false }
+);
+
+const emergencyContact = new Schema<IEmmergencyContact>(
+    {
+        email: { type: String, required: true },
+        phone: { type: String, required: true },
     },
     { _id: false }
 );
@@ -28,12 +36,20 @@ const userSchema = new Schema<Iuser>(
             type: [authProviderSchema],
             default: [],
         },
+        emergencyContact: {
+            type: emergencyContact,
+            default: {
+                phome: null,
+                email: null
+            },
+        },
         isBlocked: { type: Boolean, default: false },
-        phone: { type: String }
+        phone: { type: String },
     },
     {
         versionKey: false,
     }
 );
+
 
 export const User = model<Iuser>("User", userSchema);

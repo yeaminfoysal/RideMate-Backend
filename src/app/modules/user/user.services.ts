@@ -78,7 +78,7 @@ const getAllUsers = async (req: Request) => {
         .filter()
         .sort()
         .fields()
-        // .paginate()
+    // .paginate()
 
     const [data, meta] = await Promise.all([
         users.build(),
@@ -120,9 +120,28 @@ const unblockUser = async (payload: string) => {
 
 const updateProfile = async (payload: Iuser, userId: string) => {
 
-    const user = await User.findByIdAndUpdate(userId, payload, { new: true })
+    let emergencyContact
+
+    if (payload.emergencyContact) {
+        emergencyContact = {
+            phone: payload.emergencyContact.phone,
+            email: payload.emergencyContact.email,
+        };
+    }
+
+    const user = await User.findByIdAndUpdate(
+        userId,
+        {
+            emergencyContact,
+            name: payload?.name,
+            phone: payload?.phone
+        },
+        { new: true, runValidators: true }
+    );
+
     return user;
-}
+};
+
 
 export const UserServices = {
     createUser,

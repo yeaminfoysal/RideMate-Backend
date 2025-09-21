@@ -35,7 +35,7 @@ const failPayment = async (req: Request, res: Response, next: NextFunction) => {
         const result = await PaymentService.failPayment(query as Record<string, string>)
 
         if (!result.success) {
-            res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${query.transactionId}&message=${result.message}&amount=${query.amount}&status=${query.status}`)
+            res.redirect(`${process.env.SSL_FAIL_FRONTEND_URL}?transactionId=${query.transactionId}&message=${result.message}&amount=${query.amount}&status=${query.status}&rideId=${result.rideId}`)
         }
     } catch (error) {
         next(error)
@@ -48,7 +48,7 @@ const cancelPayment = async (req: Request, res: Response, next: NextFunction) =>
         const result = await PaymentService.cancelPayment(query as Record<string, string>)
 
         if (!result.success) {
-            res.redirect(`${process.env.SSL_CANCEL_FRONTEND_URL}?transactionId=${query.transactionId}&message=${result.message}&amount=${query.amount}&status=${query.status}`)
+            res.redirect(`${process.env.SSL_CANCEL_FRONTEND_URL}?transactionId=${query.transactionId}&message=${result.message}&amount=${query.amount}&status=${query.status}&rideId=${result.rideId}`)
         }
     } catch (error) {
         next(error)

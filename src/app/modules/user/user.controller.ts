@@ -20,8 +20,6 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const data = await UserServices.getAllUsers(req)
 
-        console.log(data)
-
         res.status(200).json({
             seccess: true,
             message: "All users retrived successfully",
@@ -86,8 +84,6 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
 
         const userId = (req.user as { userId: string })?.userId;
         const user = await UserServices.updateProfile(req.body, userId);
-
-        // console.log(req.user)
 
         res.status(201).json({
             success: true,

@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IRide } from "./ride.interface";
+import { IRide, PAYMENT_STATUS } from "./ride.interface";
 
 const locationSchema = new Schema(
     {
@@ -32,6 +32,15 @@ const rideSchema = new Schema<IRide>({
         type: String,
         enum: ['bkash', 'rocket', 'visa', 'master'],
         required: true
+    },
+    payment: {
+        type: Schema.Types.ObjectId,
+        ref: "Payment"
+    },
+    paymentStatus: {
+        type: String,
+        enum: Object.values(PAYMENT_STATUS),
+        default: PAYMENT_STATUS.PENDING
     },
     requestedAt: { type: Date, default: Date.now },
     acceptedAt: { type: Date },

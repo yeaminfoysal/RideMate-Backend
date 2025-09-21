@@ -13,8 +13,6 @@ const changePassword = async (oldPassword: string, newPassword: string, decodedT
 
     const isOldPasswordMatched = await bcryptjs.compare(oldPassword, user.password);
 
-    console.log(isOldPasswordMatched)
-
     if (!isOldPasswordMatched) {
         throw new AppError(401, "Old password does not matched")
     }

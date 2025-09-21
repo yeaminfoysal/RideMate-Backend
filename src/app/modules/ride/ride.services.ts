@@ -7,6 +7,12 @@ import { Driver } from "../driver/driver.model";
 import { calculateFare, getDistanceInKm } from "../../utils/getDistanceAndFare";
 import { IRide } from "./ride.interface";
 import { QueryBuilder } from "../../utils/QueryBuilder";
+import { Payment } from "../payment/payment.model";
+import { PAYMENT_STATUS } from "../payment/payment.interface";
+
+const getTransactionId = () => {
+    return `tran_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+}
 
 const requestRide = async (req: Request) => {
 
@@ -110,8 +116,6 @@ const getAvailableRides = async (driverId: string) => {
         }
     ).populate("rider", "name");
 
-    console.log(availableRides)
-
     return availableRides
 }
 
@@ -179,12 +183,6 @@ const getAllRides = async (req: Request) => {
 
     return { data: paginatedRides, meta: { page, limit, total, totalPage } };
 };
-
-
-
-
-
-
 
 const getMyRides = async (req: Request) => {
 
@@ -273,45 +271,82 @@ const rejectRide = async (rideId: string, driverId: string, reason?: string) => 
 }
 
 const acceptRide = async (rideId: string, driverId: string) => {
-    const driver = await Driver.findById(driverId);
+    const session = await Ride.startSession();
+    session.startTransaction();
 
-    if (!driver) {
-        throw new AppError(404, "Driver not found.");
+    try {
+        const driver = await Driver.findById(driverId);
+
+        if (!driver) {
+            throw new AppError(404, "Driver not found.");
+        }
+
+        if (driver.activeRide) {
+            throw new AppError(403, "Already in an active ride.");
+        }
+
+        if (driver.approvalStatus !== "approved") {
+            throw new AppError(403, "Driver is not permitted for ride at this moment.");
+        }
+
+        const ride = await Ride.findOneAndUpdate(
+            {
+                _id: rideId,
+                status: "requested",
+                "rejectedBy.driverId": { $ne: driverId }
+            },
+            {
+                driver: driverId,
+                status: "accepted",
+                acceptedAt: Date.now()
+            },
+            {
+                new: true,
+                session: session
+            }
+        );
+
+        if (!ride) {
+            throw new AppError(400, "Ride not found, already accepted, or you rejected it before.");
+        }
+
+        const updatedDriver = await Driver.findByIdAndUpdate(
+            driverId,
+            { activeRide: rideId },
+            { new: true, session }
+        );
+
+        const transactionId = getTransactionId();
+
+        const payment = await Payment.create([{
+            ride: ride._id,
+            status: PAYMENT_STATUS.UNPAID,
+            amount: ride.fare,
+            transactionId
+        }], { session: session })
+
+        const updatedRide = await Ride.findOneAndUpdate(
+            {
+                _id: rideId,
+            },
+            { payment: payment[0]._id },
+            {
+                new: true,
+                session: session
+            }
+        );
+
+        await session.commitTransaction() //transaction
+        session.endSession();
+
+        return { ride: updatedRide, driver: updatedDriver };
+
+    } catch (error) {
+        await session.abortTransaction()  // rollback
+        session.endSession()
+        console.log(error)
+        throw error
     }
-
-    if (driver.activeRide) {
-        throw new AppError(403, "Already in an active ride.");
-    }
-
-    if (driver.approvalStatus !== "approved") {
-        throw new AppError(403, "Driver is not permitted for ride at this moment.");
-    }
-
-    const ride = await Ride.findOneAndUpdate(
-        {
-            _id: rideId,
-            status: "requested",
-            "rejectedBy.driverId": { $ne: driverId }
-        },
-        {
-            driver: driverId,
-            status: "accepted",
-            acceptedAt: Date.now()
-        },
-        { new: true }
-    );
-
-    if (!ride) {
-        throw new AppError(400, "Ride not found, already accepted, or you rejected it before.");
-    }
-
-    const updatedDriver = await Driver.findByIdAndUpdate(
-        driverId,
-        { activeRide: rideId },
-        { new: true }
-    );
-
-    return { ride, updatedDriver };
 };
 
 const updateRideStatus = async (rideId: string, driverId: string, status: string) => {

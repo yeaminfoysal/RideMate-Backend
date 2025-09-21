@@ -24,7 +24,7 @@ export interface IRide {
     paymentMethod: "bkash" | "rocket" | "visa" | "master";
     payment?: Types.ObjectId,
     paymentStatus?: PAYMENT_STATUS;
-    paymentUrl?: string
+    paymentUrl?: string | null
     requestedAt?: Date;
     acceptedAt?: Date;
     pickedUpAt?: Date;

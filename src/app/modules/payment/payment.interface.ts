@@ -13,7 +13,7 @@ export interface IPayment {
     _id?: string,
     ride: Types.ObjectId;
     transactionId: string;
-    paymentUrl?: string;
+    paymentUrl?: string | null;
     amount: number;
     paymentGatewayData?: any
     invoiceUrl?: string

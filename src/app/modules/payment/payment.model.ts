@@ -30,7 +30,8 @@ const paymentSchema = new Schema<IPayment>({
         type: String
     },
     paymentUrl: {
-        type: String
+        type: String,
+        default: null
     }
 }, {
     timestamps: true

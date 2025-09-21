@@ -42,7 +42,7 @@ const rideSchema = new Schema<IRide>({
         enum: Object.values(PAYMENT_STATUS),
         default: PAYMENT_STATUS.PENDING
     },
-    paymentUrl: {type: String},
+    paymentUrl: { type: String, default: null },
     requestedAt: { type: Date, default: Date.now },
     acceptedAt: { type: Date },
     pickedUpAt: { type: Date },

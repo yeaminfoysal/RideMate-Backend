@@ -421,14 +421,12 @@ const completeRide = async (rideId: string, driverId: string) => {
         const sslPayload: ISSLCommerz = {
             address: userAddress || "Dhaka",
             email: userEmail,
-            phoneNumber: userPhoneNumber,
+            phoneNumber: userPhoneNumber || "01++++++++++",
             name: userName,
             amount: ride.fare as number,
             transactionId: transactionId
         }
         const sslPayment = await SSLService.sslPaymentInit(sslPayload)
-
-        console.log(sslPayment.GatewayPageURL);
 
         const updatedRide = await Ride.findOneAndUpdate(
             {

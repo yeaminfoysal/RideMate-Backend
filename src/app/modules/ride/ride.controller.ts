@@ -134,6 +134,25 @@ const updateRideStatus = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
+const completeRide = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const driverId = (req.user as { driverId: string }).driverId;
+
+        const ride = await RideServices.completeRide(
+            req.params.id,
+            driverId
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Ride completed successfully.",
+            data: ride
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const getRideDetails = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const ride = await RideServices.getRideDetails(req.params.id);
@@ -172,6 +191,7 @@ export const RideController = {
     acceptRide,
     getAllRides,
     updateRideStatus,
+    completeRide,
     getRideDetails,
     getActiveRide
 }

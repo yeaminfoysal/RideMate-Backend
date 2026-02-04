@@ -434,6 +434,7 @@ const completeRide = async (rideId: string, driverId: string) => {
             },
             {
                 status: "completed",
+                completedAt: new Date(),
                 payment: payment[0]._id,
                 paymentUrl: sslPayment.GatewayPageURL
             },

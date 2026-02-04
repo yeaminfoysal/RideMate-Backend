@@ -38,13 +38,11 @@ const userSchema = new Schema<Iuser>(
         },
         emergencyContact: {
             type: emergencyContact,
-            default: {
-                phome: null,
-                email: null
-            },
+            default: null,
         },
         isBlocked: { type: Boolean, default: false },
-        phone: { type: String },
+        approvalStatus: { type: String },
+        phone: { type: String , default: "" },
     },
     {
         versionKey: false,

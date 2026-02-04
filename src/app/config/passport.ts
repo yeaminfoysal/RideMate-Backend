@@ -39,43 +39,62 @@ passport.use(
 )
 
 passport.use(
-    new GoogleStrategy(
-        {
-            clientID: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-            callbackURL: process.env.GOOGLE_CALLBACK_URL
-        }, async (accessToken: string, refreshToken: string, profile: Profile, done: VerifyCallback) => {
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL as string,
+      passReqToCallback: true, // req access করতে চাইলে true
+    },
+    // NOTE: signature has 6 params when passReqToCallback=true
+    (req: any, accessToken: string, refreshToken: string, params: any, profile: Profile, done: VerifyCallback) => {
+      (async () => {
+        try {
+          const email = profile.emails?.[0].value;
+          if (!email) {
+            return done(null, false, { message: "No email found" });
+          }
+          
+          let role = "USER";
+          const rawState = params?.state ?? req?.query?.state;
+          if (rawState) {
             try {
-                const email = profile.emails?.[0].value;
-                if (!email) {
-                    return done(null, false, { mesaage: "No email found" })
-                }
-
-                let user = await User.findOne({ email });
-                if (!user) {
-                    user = await User.create({
-                        email,
-                        name: profile.displayName,
-                        picture: profile.photos?.[0].value,
-                        role: "USER",
-                        isVerified: true,
-                        auths: [
-                            {
-                                provider: "google",
-                                providerId: profile.id
-                            }
-                        ]
-                    })
-                }
-                return done(null, user)
-
-            } catch (error) {
-                console.log("Google Strategy Error", error);
-                return done(error)
+              const parsed = typeof rawState === "string" ? JSON.parse(rawState) : rawState;
+              if (parsed?.role) role = parsed.role;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (parseErr) {
+              if (typeof rawState === "string" && ["DRIVER", "RIDER", "USER"].includes(rawState)) {
+                role = rawState;
+              }
             }
+          }
+
+          let user = await User.findOne({ email });
+          if (!user) {
+            user = await User.create({
+              email,
+              name: profile.displayName,
+              picture: profile.photos?.[0]?.value,
+              role,
+              isVerified: true,
+              auths: [
+                {
+                  provider: "google",
+                  providerId: profile.id,
+                },
+              ],
+            });
+          }
+
+          return done(null, user);
+        } catch (err) {
+          return done(err as Error);
         }
-    )
+      })();
+    }
+  )
 );
+
 
 passport.serializeUser((user: any, done: (err: any, id?: unknown) => void) => {
     done(null, user._id)

@@ -19,6 +19,7 @@ export interface Iuser {
     activeRide: Types.ObjectId | null;
     auths: IAuthProvider[];
     isBlocked: boolean,
+    approvalStatus?: string;
     phone?: string,
     emergencyContact?: IEmmergencyContact
 }

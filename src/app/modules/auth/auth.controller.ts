@@ -54,13 +54,13 @@ const logout = async (req: Request, res: Response, next: NextFunction) => {
 
         res.clearCookie("refreshToken", {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax"
+            secure: true,
+            sameSite: "none"
         })
         res.clearCookie("accessToken", {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax"
+            secure: true,
+            sameSite: "none"
         })
 
         res.status(200).json({
@@ -115,7 +115,7 @@ const googleCallbackController = async (req: Request, res: Response, next: NextF
 
     setCookie(res, tokenInfo)
 
-    res.redirect(`${process.env.FRONTEND_URL}/${redirectTo}`)
+    res.redirect(`${process.env.FRONTEND_URL}/`)
 }
 
 export const AuthController = { credentialsLogin, changePassword, logout, googleCallbackController }
